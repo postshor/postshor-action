@@ -40,7 +40,7 @@ jobs:
 | `path` | `.` | Directory to scan |
 | `fail-on` | *(empty)* | Fail if any finding is at or above `critical`, `high`, `medium` or `low`. Empty never fails. |
 | `upload-sarif` | `true` | Upload results to GitHub code scanning |
-| `version` | `0.1.1` | PostShor version installed from PyPI |
+| `version` | `0.2.0` | PostShor version installed from PyPI |
 | `args` | *(empty)* | Extra arguments for `postshor scan`, e.g. `--exclude tests/fixtures --baseline .postshor-baseline.json` |
 
 ## Outputs
