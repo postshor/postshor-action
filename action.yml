@@ -1,0 +1,94 @@
+name: PostShor
+description: Find quantum-vulnerable cryptography (RSA, ECC, DH) in your code, dependencies, certificates and configs, and get a post-quantum migration plan.
+author: PostShor
+branding:
+  icon: shield
+  color: orange
+
+inputs:
+  path:
+    description: Directory to scan.
+    default: "."
+  fail-on:
+    description: Fail the job if any finding is at or above this severity (critical, high, medium, low). Empty means never fail.
+    default: ""
+  upload-sarif:
+    description: "Upload results to GitHub code scanning (needs `security-events: write`)."
+    default: "true"
+  version:
+    description: PostShor version to install from PyPI.
+    default: "0.1.0"
+  args:
+    description: Extra arguments for `postshor scan`, for example `--exclude tests/fixtures`.
+    default: ""
+
+outputs:
+  grade:
+    description: Quantum Readiness Score grade (A–F).
+    value: ${{ steps.scan.outputs.grade }}
+  score:
+    description: Quantum Readiness Score (0–100).
+    value: ${{ steps.scan.outputs.score }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v7
+      with:
+        python-version: "3.12"
+
+    - name: Install PostShor
+      shell: bash
+      env:
+        POSTSHOR_VERSION: ${{ inputs.version }}
+      run: |
+        if ! [[ "$POSTSHOR_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([a-z0-9.]*)?$ ]]; then
+          echo "::error::Invalid PostShor version: '$POSTSHOR_VERSION'"; exit 1
+        fi
+        python -m pip install --quiet "postshor==$POSTSHOR_VERSION"
+
+    - name: Scan
+      id: scan
+      shell: bash
+      env:
+        SCAN_PATH: ${{ inputs.path }}
+        FAIL_ON: ${{ inputs.fail-on }}
+        EXTRA_ARGS: ${{ inputs.args }}
+      run: |
+        set +e
+        fail_args=()
+        if [ -n "$FAIL_ON" ]; then fail_args=(--fail-on "$FAIL_ON"); fi
+        # shellcheck disable=SC2086
+        postshor scan "$SCAN_PATH" -o postshor.sarif -o postshor.json -o postshor.md -o postshor-report.html \
+          "${fail_args[@]}" $EXTRA_ARGS
+        code=$?
+        set -e
+        cat postshor.md >> "$GITHUB_STEP_SUMMARY"
+        python -c "import json;s=json.load(open('postshor.json'))['score'];print(f\"grade={s['grade']}\");print(f\"score={s['score']}\")" >> "$GITHUB_OUTPUT"
+        echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+
+    - name: Upload SARIF
+      if: ${{ inputs.upload-sarif == 'true' && always() }}
+      uses: github/codeql-action/upload-sarif@v4
+      with:
+        sarif_file: postshor.sarif
+        category: postshor
+
+    - name: Upload report
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: postshor-report
+        path: |
+          postshor-report.html
+          postshor.json
+          postshor.sarif
+
+    - name: Enforce policy
+      if: ${{ steps.scan.outputs.exit_code != '0' }}
+      shell: bash
+      env:
+        FAIL_ON: ${{ inputs.fail-on }}
+      run: |
+        echo "::error::PostShor found findings at or above '$FAIL_ON'. See the job summary and code scanning alerts."
+        exit 1
