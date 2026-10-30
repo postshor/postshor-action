@@ -25,7 +25,7 @@ jobs:
   postshor:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: postshor/postshor-action@v1
         with:
           fail-on: critical   # block new harvest-now-decrypt-later exposure
