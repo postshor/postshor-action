@@ -17,7 +17,7 @@ inputs:
     default: "true"
   version:
     description: PostShor version to install from PyPI.
-    default: "0.1.0"
+    default: "0.1.1"
   args:
     description: Extra arguments for `postshor scan`, for example `--exclude tests/fixtures`.
     default: ""
