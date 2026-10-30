@@ -75,3 +75,5 @@ postshor baseline .          # writes .postshor-baseline.json; commit it
 - Issues and feature requests: [postshor/postshor/issues](https://github.com/postshor/postshor/issues)
 
 Licensed under the [Apache License 2.0](LICENSE).
+
+<sub>PostShor is an independent open-source project, not affiliated with or endorsed by Peter Shor.</sub>
