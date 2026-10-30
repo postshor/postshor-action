@@ -5,6 +5,8 @@
   </picture>
 </p>
 
+<p align="center"><a href="https://github.com/marketplace/actions/postshor"><img src="https://img.shields.io/badge/GitHub%20Marketplace-PostShor-0B0E14?logo=github" alt="GitHub Marketplace"></a></p>
+
 # PostShor GitHub Action
 
 Find quantum-vulnerable cryptography in your repository on every push and pull request.
