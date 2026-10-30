@@ -1,5 +1,5 @@
 name: PostShor
-description: Find quantum-vulnerable cryptography (RSA, ECC, DH) in your code, dependencies, certificates and configs, and get a post-quantum migration plan.
+description: Find quantum-vulnerable cryptography in your code and configs, and get a post-quantum migration plan.
 author: PostShor
 branding:
   icon: shield
